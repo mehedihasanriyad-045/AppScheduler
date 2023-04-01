@@ -1,3 +1,9 @@
+/**
+
+The MainActivity class displays a list of all installed applications on the user's device that can be selected and scheduled to open at a later time via a notification.
+
+ **/
+
 package com.riyad.appscheduler
 
 import android.Manifest
@@ -32,23 +38,22 @@ import java.util.*
 
 class MainActivity : AppCompatActivity() {
 
+    // Method to initialize activity
     @RequiresApi(Build.VERSION_CODES.M)
     @SuppressLint("UnspecifiedImmutableFlag")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-
-
-
-
+        // Create notification channel
         createNotificationChannel();
 
 
-
-
+        // Set up RecyclerView for displaying list of apps
         val appListRecyclerView = findViewById<RecyclerView>(R.id.appListRecyclerView)
         appListRecyclerView.layoutManager = LinearLayoutManager(this)
+
+        // Get list of all installed apps
         val packageManager = packageManager
         val intent = Intent(Intent.ACTION_MAIN, null)
         intent.addCategory(Intent.CATEGORY_LAUNCHER)
@@ -56,6 +61,7 @@ class MainActivity : AppCompatActivity() {
 
         val appList = mutableListOf<AppInfo>()
 
+        // Add app information to appList
         for (resolveInfo in resolveInfoList) {
             val appName = resolveInfo.loadLabel(packageManager).toString()
             val packageName = resolveInfo.activityInfo.packageName
@@ -63,11 +69,13 @@ class MainActivity : AppCompatActivity() {
             appList.add(AppInfo(appName, packageName, appIcon))
         }
 
+        // Set up RecyclerView Adapter
         val appListAdapter = AppListAdapter(appList)
         appListRecyclerView.adapter = appListAdapter
 
     }
 
+    // Method to create notification channel
     private fun createNotificationChannel() {
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
