@@ -23,7 +23,7 @@
         android:theme="@style/Theme.AppScheduler"
         tools:targetApi="31">
         <activity
-            android:name=".notificationTapActivity"
+            android:name=".activity.NotificationTapActivity"
             android:exported="false">
             <meta-data
                 android:name="android.app.lib_name"

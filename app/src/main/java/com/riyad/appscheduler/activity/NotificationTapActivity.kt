@@ -3,6 +3,7 @@ package com.riyad.appscheduler.activity
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.util.Log
 import com.riyad.appscheduler.database.DatabaseHelper
 
 class NotificationTapActivity : AppCompatActivity() {
@@ -12,7 +13,8 @@ class NotificationTapActivity : AppCompatActivity() {
         val databaseHelper = DatabaseHelper(this)
 
         val packageName = intent?.getStringExtra("packageName").toString()
-        val notificationId = intent?.getStringExtra("notificationId").toString()
+        val notificationId = intent?.getIntExtra("notificationId", 0)
+        Log.d("riyad_app", "onCreate: "+notificationId)
 
         //databaseHelper.updateScheduleAction(notificationId.toInt(), 1)
 

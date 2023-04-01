@@ -78,7 +78,7 @@ class MainActivity : AppCompatActivity() {
 
     private fun createNotificationChannel() {
         // Create a notification channel
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+        /*if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val channelId = "app_scheduler"
             val channelName = "App Scheduler"
             val channelDescription = "My Channel Description"
@@ -88,9 +88,9 @@ class MainActivity : AppCompatActivity() {
             }
 
             // Register the notification channel with the system
-            val notificationManager = this.getSystemService(NotificationManager::class.java)
+            val notificationManager = this.getSystemService(NotificationManager::class.java) as NotificationManager
             notificationManager.createNotificationChannel(channel)
-        }
+        }*/
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val name = "App Scheduler"

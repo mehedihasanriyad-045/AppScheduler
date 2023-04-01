@@ -20,6 +20,7 @@ import com.riyad.appscheduler.model.Schedule
 import com.riyad.appscheduler.receiver.NotificationReceiver
 import java.text.SimpleDateFormat
 import java.util.*
+import kotlin.math.absoluteValue
 
 
 class ScheduleActivity : AppCompatActivity() {
@@ -96,21 +97,25 @@ class ScheduleActivity : AppCompatActivity() {
                         // Add the schedule to the database
                         val dateFormat = SimpleDateFormat("dd/MM/yyyy HH:mm:ss", Locale.getDefault())
                         val dateString = dateFormat.format(calendar.time)
-                        val notificationId = System.currentTimeMillis().toInt()
 
 
-                        val notification_intent = Intent(this, NotificationReceiver::class.java)
-                        notification_intent.putExtra("notificationId", notificationId)
-                        notification_intent.putExtra("packageName", intent.getStringExtra("packageName").toString())
+                        val notificationId = System.currentTimeMillis().toInt().absoluteValue
+                        Log.d("riyad_app", "notification : notificationId "+ notificationId.toString())
+
+                        val notificationIntent = Intent(this, NotificationReceiver::class.java)
+                        notificationIntent.putExtra("notificationId", notificationId)
+                        notificationIntent.putExtra("packageName", intent.getStringExtra("packageName"))
 
 
                         val requestCode = System.currentTimeMillis().toInt()
 
-                        val pendingIntent = PendingIntent.getBroadcast(this, requestCode, notification_intent, PendingIntent.FLAG_UPDATE_CURRENT)
+                        val pendingIntent = PendingIntent.getBroadcast(this, requestCode, notificationIntent, PendingIntent.FLAG_UPDATE_CURRENT)
 
                         // Schedule the notification using the AlarmManager
                         val alarmManager = applicationContext.getSystemService(Context.ALARM_SERVICE) as AlarmManager
                         alarmManager.setExact(AlarmManager.RTC_WAKEUP, calendar.timeInMillis, pendingIntent)
+
+
 
                         val schedule = Schedule(package_Name.toString(),calendar.timeInMillis, dateString, notificationId)
 

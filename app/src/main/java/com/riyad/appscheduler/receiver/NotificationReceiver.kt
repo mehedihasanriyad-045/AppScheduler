@@ -7,6 +7,7 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.os.Build
+import android.util.Log
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import com.riyad.appscheduler.R
@@ -19,6 +20,7 @@ class NotificationReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context?, intent: Intent?) {
         context?.let {
 
+            val notificationId = intent?.getIntExtra("notificationId", 0) ?: 0
 
             val packageName = intent?.getStringExtra("packageName").toString()
             val packageManager = context.packageManager
@@ -30,7 +32,7 @@ class NotificationReceiver : BroadcastReceiver() {
 
             val intents = Intent(context, NotificationTapActivity::class.java)
             intents.putExtra("packageName", packageName)
-            intents.putExtra("notificationId", intent?.getStringExtra("notificationId").toString())
+            intents.putExtra("notificationId", notificationId)
 
             val intent = packageManager.getLaunchIntentForPackage(packageName)
             intent?.flags = Intent.FLAG_ACTIVITY_NEW_TASK
@@ -38,9 +40,15 @@ class NotificationReceiver : BroadcastReceiver() {
             val requestCode = System.currentTimeMillis().toInt()
 
             // Create a PendingIntent with the Intent
-            val pendingIntent = PendingIntent.getActivity(context, requestCode, intent, PendingIntent.FLAG_UPDATE_CURRENT)
+            val pendingIntent = PendingIntent.getActivity(context, requestCode, intents, PendingIntent.FLAG_UPDATE_CURRENT)
 
-            val notificationId = intent?.getStringExtra("notificationId").toString()
+
+
+            Log.d("riyad_app", "receiver : "+notificationId)
+
+
+
+
             val notificationContent = "Click to open.."
 
             // Create the notification
@@ -54,7 +62,7 @@ class NotificationReceiver : BroadcastReceiver() {
 
             // Show the notification
             val notificationManager = NotificationManagerCompat.from(it)
-            notificationManager.notify(notificationId, 0, notification)
+            notificationManager.notify(notificationId.toString(), notificationId, notification)
         }
     }
 

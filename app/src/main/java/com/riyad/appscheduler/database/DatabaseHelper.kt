@@ -5,9 +5,13 @@ import android.content.ContentValues
 import android.content.Context
 import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteOpenHelper
+import android.icu.text.MessageFormat.format
 import android.util.Log
 import com.riyad.appscheduler.model.Application
 import com.riyad.appscheduler.model.Schedule
+import java.lang.String.format
+import java.text.DateFormat
+import java.text.MessageFormat.format
 
 
 class DatabaseHelper(context: Context) :
@@ -80,8 +84,12 @@ class DatabaseHelper(context: Context) :
         val db = readableDatabase
         val schedules = mutableListOf<Schedule>()
 
-        val query = "SELECT * FROM ${Schedule.TABLE_NAME} WHERE ${Schedule.COLUMN_PACKAGE_NAME} = ?"
-        val selectionArgs = arrayOf(packageName)
+        val currentTimeMillis = System.currentTimeMillis()
+        //val currentTimeStr = DateFormat.format("hh:mm a", currentTimeMillis).toString()
+
+
+        val query = "SELECT * FROM ${Schedule.TABLE_NAME} WHERE ${Schedule.COLUMN_PACKAGE_NAME} = ? AND ${Schedule.COLUMN_TIME} >=  ? ORDER BY ${Schedule.COLUMN_TIME} DESC"
+        val selectionArgs = arrayOf(packageName, currentTimeMillis.toString())
 
         val cursor = db.rawQuery(query, selectionArgs)
 
