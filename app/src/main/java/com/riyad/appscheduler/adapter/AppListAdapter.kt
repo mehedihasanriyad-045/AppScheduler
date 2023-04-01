@@ -25,7 +25,6 @@ class AppListAdapter(private val appList: List<AppInfo>) : RecyclerView.Adapter<
     }
 
     override fun getItemCount(): Int {
-        //Log.d("riyad_app", "onCreate: "+appList.size)
         return appList.size
     }
 

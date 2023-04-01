@@ -44,7 +44,6 @@ class NotificationReceiver : BroadcastReceiver() {
 
 
 
-            Log.d("riyad_app", "receiver : "+notificationId)
 
 
 

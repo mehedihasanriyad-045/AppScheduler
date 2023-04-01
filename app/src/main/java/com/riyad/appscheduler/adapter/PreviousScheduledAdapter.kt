@@ -1,6 +1,8 @@
 package com.riyad.appscheduler.adapter
 
 import android.annotation.SuppressLint
+import android.graphics.Color
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -12,47 +14,55 @@ import com.riyad.appscheduler.R
 import com.riyad.appscheduler.database.DatabaseHelper
 import com.riyad.appscheduler.model.Schedule
 
-class ScheduleAdapter(
+class PreviousScheduledAdapter(
     private var scheduleList: MutableList<Schedule>,
     private val onItemClickListener: OnItemClickListener
-) : RecyclerView.Adapter<ScheduleAdapter.ScheduleViewHolder>() {
+) : RecyclerView.Adapter<PreviousScheduledAdapter.PreviousScheduleViewHolder>() {
 
     interface OnItemClickListener {
-        fun onItemClick(position: Int)
         fun onDeleteClick(position: Int)
-        fun onEditClick(position: Int)
     }
 
-    inner class ScheduleViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView),
+    inner class PreviousScheduleViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView),
         View.OnClickListener {
         val dateTv: TextView = itemView.findViewById(R.id.date_tv)
         val timeTextView: TextView = itemView.findViewById(R.id.time_tv)
-        val editButton: ImageButton = itemView.findViewById(R.id.edit_button)
+        val actionTv: TextView = itemView.findViewById(R.id.performed_action_tv)
         val deleteButton: ImageButton = itemView.findViewById(R.id.delete_button)
 
         init {
             itemView.setOnClickListener(this)
-            editButton.setOnClickListener { onItemClickListener.onEditClick(adapterPosition) }
             deleteButton.setOnClickListener { onItemClickListener.onDeleteClick(adapterPosition) }
         }
 
-        override fun onClick(v: View?) {
-            onItemClickListener.onItemClick(adapterPosition)
+        override fun onClick(p0: View?) {
+
         }
+
+
     }
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ScheduleViewHolder {
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): PreviousScheduleViewHolder {
         val itemView = LayoutInflater.from(parent.context)
-            .inflate(R.layout.schedule_item, parent, false)
-        return ScheduleViewHolder(itemView)
+            .inflate(R.layout.previous_scheduled_item, parent, false)
+        return PreviousScheduleViewHolder(itemView)
     }
 
     @SuppressLint("SetTextI18n")
-    override fun onBindViewHolder(holder: ScheduleViewHolder, position: Int) {
+    override fun onBindViewHolder(holder: PreviousScheduleViewHolder, position: Int) {
         val currentItem = scheduleList[position]
         val parts = currentItem.timeStr.split(" ")
         holder.dateTv.text = "Date : "+parts[0]
         holder.timeTextView.text = "Time : "+parts[1]
+        if(currentItem.isTapped == 0){
+            holder.actionTv.text = "No Action"
+            holder.actionTv.setTextColor(Color.RED)
+
+        }else{
+            holder.actionTv.text = "Yes"
+            holder.actionTv.setTextColor(Color.BLUE)
+
+        }
     }
 
     override fun getItemCount(): Int = scheduleList.size
@@ -74,4 +84,6 @@ class ScheduleAdapter(
         this.scheduleList = newList
         notifyDataSetChanged()
     }
+
+
 }

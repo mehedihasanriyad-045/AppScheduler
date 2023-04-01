@@ -28,7 +28,8 @@ class DatabaseHelper(context: Context) :
                 "${Schedule.COLUMN_PACKAGE_NAME} TEXT , " +
                 "${Schedule.COLUMN_TIME} INTEGER NOT NULL, " +
                 "${Schedule.COLUMN_NOTIFICATION_ID} INTEGER NOT NULL PRIMARY KEY, " +
-                "${Schedule.COLUMN_TIME_STR} TEXT NOT NULL);"
+                "${Schedule.COLUMN_TIME_STR} TEXT NOT NULL, " +
+                "${Schedule.COLUMN_IS_TAPPED} TEXT NOT NULL);"
         db?.execSQL(createScheduleTable)
 
         // Create the Application table
@@ -51,11 +52,12 @@ class DatabaseHelper(context: Context) :
         val values = ContentValues().apply {
             put(Schedule.COLUMN_PACKAGE_NAME, schedule.packageName)
             put(Schedule.COLUMN_TIME, schedule.time)
+            put(Schedule.COLUMN_NOTIFICATION_ID, schedule.notificationId)
             put(Schedule.COLUMN_TIME_STR, schedule.timeStr)
+            put(Schedule.COLUMN_IS_TAPPED, 0)
         }
         val id = db.insert(Schedule.TABLE_NAME, null, values)
         db.close()
-        Log.d("riyad_app", "insertSchedule: "+schedule.timeStr+ " "+schedule.time+" "+schedule.packageName)
 
         return id
     }
@@ -72,7 +74,7 @@ class DatabaseHelper(context: Context) :
                 val time = cursor.getLong(cursor.getColumnIndex(Schedule.COLUMN_TIME))
                 val timeStr = cursor.getString(cursor.getColumnIndex(Schedule.COLUMN_TIME_STR))
                 val notification_id = cursor.getInt(cursor.getColumnIndexOrThrow(Schedule.COLUMN_NOTIFICATION_ID))
-                scheduleList.add(Schedule(packageName, time, timeStr, notification_id))
+                scheduleList.add(Schedule(packageName, time, timeStr, notification_id,0))
             } while (cursor.moveToNext())
         }
         cursor.close()
@@ -97,21 +99,47 @@ class DatabaseHelper(context: Context) :
             val time = cursor.getLong(cursor.getColumnIndexOrThrow(Schedule.COLUMN_TIME))
             val timeStr = cursor.getString(cursor.getColumnIndexOrThrow(Schedule.COLUMN_TIME_STR))
             val notification_id = cursor.getInt(cursor.getColumnIndexOrThrow(Schedule.COLUMN_NOTIFICATION_ID))
-            schedules.add(Schedule(packageName, time, timeStr, notification_id))
+            schedules.add(Schedule(packageName, time, timeStr, notification_id,0))
         }
 
         cursor.close()
         return schedules
     }
 
-    /*fun updateScheduleAction(db: SQLiteDatabase?, notificationId: Int, isTapped: Int): Int {
+    fun getPreviousSchedulesByPackageName(packageName: String): List<Schedule> {
+        val db = readableDatabase
+        val schedules = mutableListOf<Schedule>()
+
+        val currentTimeMillis = System.currentTimeMillis()
+        //val currentTimeStr = DateFormat.format("hh:mm a", currentTimeMillis).toString()
+
+
+        val query = "SELECT * FROM ${Schedule.TABLE_NAME} WHERE ${Schedule.COLUMN_PACKAGE_NAME} = ? AND ${Schedule.COLUMN_TIME} <  ? ORDER BY ${Schedule.COLUMN_TIME} DESC"
+        val selectionArgs = arrayOf(packageName, currentTimeMillis.toString())
+
+        val cursor = db.rawQuery(query, selectionArgs)
+
+        while (cursor.moveToNext()) {
+            val time = cursor.getLong(cursor.getColumnIndexOrThrow(Schedule.COLUMN_TIME))
+            val timeStr = cursor.getString(cursor.getColumnIndexOrThrow(Schedule.COLUMN_TIME_STR))
+            val notification_id = cursor.getInt(cursor.getColumnIndexOrThrow(Schedule.COLUMN_NOTIFICATION_ID))
+            val isTapped = cursor.getInt(cursor.getColumnIndexOrThrow(Schedule.COLUMN_IS_TAPPED))
+            schedules.add(Schedule(packageName, time, timeStr, notification_id,isTapped))
+        }
+
+        cursor.close()
+        return schedules
+    }
+
+    fun updateScheduleAction( notificationId: Int, isTapped: Int): Int {
+        val db = this.writableDatabase
         val values = ContentValues().apply {
             put(Schedule.COLUMN_IS_TAPPED, isTapped)
         }
         val selection = "${Schedule.COLUMN_NOTIFICATION_ID} = ?"
         val selectionArgs = arrayOf(notificationId.toString())
         return db?.update(Schedule.TABLE_NAME, values, selection, selectionArgs) ?: 0
-    }*/
+    }
 
 
     fun updateSchedule(schedule: Schedule): Int {
@@ -119,16 +147,23 @@ class DatabaseHelper(context: Context) :
         val values = ContentValues().apply {
             put(Schedule.COLUMN_TIME, schedule.time)
             put(Schedule.COLUMN_TIME_STR, schedule.timeStr)
-            put(Schedule.COLUMN_NOTIFICATION_ID, schedule.notificationId)
         }
-        val rows = db.update(Schedule.TABLE_NAME, values, "${Schedule.COLUMN_PACKAGE_NAME}=?", arrayOf(schedule.packageName))
+        val rows = db.update(
+            Schedule.TABLE_NAME,
+            values,
+            "${Schedule.COLUMN_NOTIFICATION_ID}=?",
+            arrayOf(schedule.notificationId.toString())
+        )
         db.close()
+
+
+
         return rows
     }
 
-    fun deleteSchedule(packageName: String): Int {
+    fun deleteSchedule(notificationId: Int ): Int {
         val db = this.writableDatabase
-        val rows = db.delete(Schedule.TABLE_NAME, "${Schedule.COLUMN_PACKAGE_NAME}=?", arrayOf(packageName))
+        val rows = db.delete(Schedule.TABLE_NAME, "${Schedule.COLUMN_NOTIFICATION_ID}=?", arrayOf(notificationId.toString()))
         db.close()
         return rows
     }

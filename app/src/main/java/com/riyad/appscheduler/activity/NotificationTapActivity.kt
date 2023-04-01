@@ -14,9 +14,10 @@ class NotificationTapActivity : AppCompatActivity() {
 
         val packageName = intent?.getStringExtra("packageName").toString()
         val notificationId = intent?.getIntExtra("notificationId", 0)
-        Log.d("riyad_app", "onCreate: "+notificationId)
 
-        //databaseHelper.updateScheduleAction(notificationId.toInt(), 1)
+        if (notificationId != null) {
+            databaseHelper.updateScheduleAction(notificationId.toInt(), 1)
+        }
 
         val packageManager = this.packageManager
         val packageInfo = packageManager.getPackageInfo(packageName, 0)
